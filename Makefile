@@ -10,54 +10,42 @@ CFLAGS = -ffreestanding -O2 -Wall -Wextra
 LDFLAGS = -T linker.ld -nostdlib
 
 BUILD_DIR = build
-ISO_DIR = iso
 
 # === Fichiers source ===
 
+BOOT_SRC = boot/bootloader.s
 KERNEL_SRC = kernel/kernel.c
-BOOT_SRC = boot/boot.s
 
+BOOT_OBJ = $(BUILD_DIR)/bootloader.o
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
-BOOT_OBJ = $(BUILD_DIR)/boot.o
 KERNEL_ELF = $(BUILD_DIR)/kernel.elf
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
 
-ISO_IMAGE = $(BUILD_DIR)/OuranOS.iso
-
 # === Règles ===
 
-all: $(ISO_IMAGE)
+all: $(KERNEL_BIN)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Assembler
+# Assemble le bootloader
 $(BOOT_OBJ): $(BOOT_SRC) | $(BUILD_DIR)
 	$(AS) -32 -o $@ $<
 
-# Compiler
+# Compile le kernel C
 $(KERNEL_OBJ): $(KERNEL_SRC) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Linker
-$(KERNEL_ELF): $(KERNEL_OBJ) $(BOOT_OBJ)
-	$(LD) $(LDFLAGS) -o $@ $(BOOT_OBJ) $(KERNEL_OBJ)
+# Link les deux en un fichier ELF
+$(KERNEL_ELF): $(BOOT_OBJ) $(KERNEL_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
 
-# Convert to flat binary
+# Convertit en binaire brut
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@
 
-# ISO image with GRUB (optionnel)
-$(ISO_IMAGE): $(KERNEL_BIN)
-	mkdir -p $(ISO_DIR)/boot/grub
-	cp $(KERNEL_BIN) $(ISO_DIR)/boot/kernel.bin
-	echo 'set timeout=0' > $(ISO_DIR)/boot/grub/grub.cfg
-	echo 'set default=0' >> $(ISO_DIR)/boot/grub/grub.cfg
-	echo 'menuentry "OuranOS" { multiboot /boot/kernel.bin }' >> $(ISO_DIR)/boot/grub/grub.cfg
-	grub-mkrescue -o $@ $(ISO_DIR)
-
 # Nettoyage
 clean:
-	rm -rf $(BUILD_DIR) $(ISO_DIR)
+	rm -rf $(BUILD_DIR)
 
 .PHONY: all clean
