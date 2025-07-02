@@ -1,32 +1,63 @@
-# Dossiers
-BOOT_DIR = boot
-KERNEL_DIR = kernel
+# === Configuration ===
+
+CROSS_PREFIX = i686-elf-
+AS = $(CROSS_PREFIX)as
+CC = $(CROSS_PREFIX)gcc
+LD = $(CROSS_PREFIX)ld
+OBJCOPY = $(CROSS_PREFIX)objcopy
+
+CFLAGS = -ffreestanding -O2 -Wall -Wextra
+LDFLAGS = -T linker.ld -nostdlib
+
 BUILD_DIR = build
+ISO_DIR = iso
 
-# Fichiers sources
-BOOT_SRC = $(BOOT_DIR)/boot.s
-KERNEL_SRC = $(KERNEL_DIR)/kernel.c
+# === Fichiers source ===
 
-# Fichiers objets
-BOOT_OBJ = $(BUILD_DIR)/boot.o
+KERNEL_SRC = kernel/kernel.c
+BOOT_SRC = boot/boot.s
+
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
+BOOT_OBJ = $(BUILD_DIR)/boot.o
+KERNEL_ELF = $(BUILD_DIR)/kernel.elf
+KERNEL_BIN = $(BUILD_DIR)/kernel.bin
 
-# Binaire final
-BIN = $(BUILD_DIR)/monos.bin
+ISO_IMAGE = $(BUILD_DIR)/OuranOS.iso
 
-all: $(BIN)
+# === Règles ===
+
+all: $(ISO_IMAGE)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
+# Assembler
 $(BOOT_OBJ): $(BOOT_SRC) | $(BUILD_DIR)
-	nasm -f elf32 $< -o $@
+	$(AS) -32 -o $@ $<
 
+# Compiler
 $(KERNEL_OBJ): $(KERNEL_SRC) | $(BUILD_DIR)
-	gcc -m32 -ffreestanding -c $< -o $@
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(BIN): $(BOOT_OBJ) $(KERNEL_OBJ)
-	ld -m elf_i386 -T linker.ld -o $@ $^
+# Linker
+$(KERNEL_ELF): $(KERNEL_OBJ) $(BOOT_OBJ)
+	$(LD) $(LDFLAGS) -o $@ $(BOOT_OBJ) $(KERNEL_OBJ)
 
+# Convert to flat binary
+$(KERNEL_BIN): $(KERNEL_ELF)
+	$(OBJCOPY) -O binary $< $@
+
+# ISO image with GRUB (optionnel)
+$(ISO_IMAGE): $(KERNEL_BIN)
+	mkdir -p $(ISO_DIR)/boot/grub
+	cp $(KERNEL_BIN) $(ISO_DIR)/boot/kernel.bin
+	echo 'set timeout=0' > $(ISO_DIR)/boot/grub/grub.cfg
+	echo 'set default=0' >> $(ISO_DIR)/boot/grub/grub.cfg
+	echo 'menuentry "OuranOS" { multiboot /boot/kernel.bin }' >> $(ISO_DIR)/boot/grub/grub.cfg
+	grub-mkrescue -o $@ $(ISO_DIR)
+
+# Nettoyage
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(ISO_DIR)
+
+.PHONY: all clean
