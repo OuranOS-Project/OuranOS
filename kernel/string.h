@@ -1,9 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "screen.h"
-#include "memory.h"
-#include "debug.h"
+#include "kernel.h"
 
 int strlen(const char *str); // Returns the length of the string
 int strcmp(const char *s1, const char *s2); // Compares two strings and returns 0 if they are equal, non-zero otherwise

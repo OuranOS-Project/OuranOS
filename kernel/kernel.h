@@ -1,9 +1,16 @@
-// Screen
+#ifndef KERNEL_H
+#define KERNEL_H
 
-typedef struct {
-    int x;
-    int y;
-} point_t;
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <limits.h>
+#include <float.h>
 
-void screen_clear();
-void screen_print(point_t point, const char *str);
+#include "screen.h"
+#include "memory.h"
+#include "string.h"
+#include "debug.h"
+#include "idt.h"
+
+#endif

@@ -46,7 +46,7 @@ void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
 
 void idt_load(); // définie en assembleur (lidt)
 
-void idt_init() {
+void idt_init() {   
     idtp.limit = sizeof(idt_entry_t) * IDT_ENTRIES - 1;
     idtp.base  = (uint32_t)&idt;
 
@@ -92,7 +92,7 @@ void idt_init() {
 
 void fault_handler(int int_no, int err_code) {
     if (int_no == 0) {
-        debug_panic("Division par zero");
+        debug_panic("Division by zero");
     } else {
         debug_panic("Exception CPU");
     }

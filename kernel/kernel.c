@@ -1,22 +1,24 @@
-#include "screen.h"
-#include "memory.h"
-#include "string.h"
-#include "debug.h"
-#include "idt.h"
+#include "kernel.h"
 
 void _start() {
     screen_clear();
-
-    screen_print((point_t){0,0}, "Welcome to OuranOS!");
-
     idt_init();
-    
-    volatile int test = 5;
-    screen_print_dec((point_t){0,2}, test);
-    volatile int test2 = test / 0;
-    screen_print_dec((point_t){0,3}, test2);
 
-    screen_print((point_t){0,4}, "Test finished");
+    const char* ascii_art[] = {
+        "  ___                         ___   ____  ",
+        " / _ \\ _   _ _ __ __ _ _ __  / _ \\ / ___| ",
+        "| | | | | | | '__/ _` | '_ \\| | | \\___ \\ ",
+        "| |_| | |_| | | | (_| | | | | |_| |___) |",
+        " \\___/ \\__,_|_|  \\__,_|_| |_|\\___/|____/ "
+    };
+
+    screen_ascii_art((point_t){0, 0}, ascii_art, 5);
+
+    screen_print((point_t){0,7}, "Welcome to OuranOS!");
+
+    screen_draw_rectangle_outline((rectangle_t){50, 10, 20, 10}, 0x4F);
+
+    screen_draw_rectangle((rectangle_t){51, 11, 20, 10}, 0x1F);
 
     while (1) {}
 }

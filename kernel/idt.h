@@ -1,11 +1,7 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include <stdint.h>
-#include "debug.h"
-#include "screen.h"
-#include "memory.h"
-#include "string.h"
+#include "kernel.h"
 
 #define IDT_ENTRIES 256
 

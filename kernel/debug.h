@@ -1,9 +1,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "screen.h"
-#include "memory.h"
-#include "string.h"
+#include "kernel.h"
 
 #define assert(expr) ((expr) ? (void)0 : debug_panic("Assertion failed: " #expr))
 
