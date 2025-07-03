@@ -14,10 +14,10 @@ BUILD_DIR = build
 # === Fichiers source ===
 
 BOOT_SRC = boot/bootloader.s
-KERNEL_SRC = kernel/kernel.c
+KERNEL_SRC = kernel/kernel.c kernel/screen.c
 
 BOOT_BIN = $(BUILD_DIR)/bootloader.bin
-KERNEL_OBJ = $(BUILD_DIR)/kernel.o
+KERNEL_OBJ = $(KERNEL_SRC:kernel/%.c=$(BUILD_DIR)/%.o)
 KERNEL_ELF = $(BUILD_DIR)/kernel.elf
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
 OS_IMAGE = $(BUILD_DIR)/os.img
@@ -33,13 +33,13 @@ $(BUILD_DIR):
 $(BOOT_BIN): $(BOOT_SRC) | $(BUILD_DIR)
 	$(AS) -f bin $< -o $@
 
-# Compile kernel
-$(KERNEL_OBJ): $(KERNEL_SRC) | $(BUILD_DIR)
+# Compile kernel objects
+$(BUILD_DIR)/%.o: kernel/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Link kernel
 $(KERNEL_ELF): $(KERNEL_OBJ)
-	$(LD) $(LDFLAGS) -o $@ $<
+	$(LD) $(LDFLAGS) -o $@ $^
 
 # Convert to raw binary
 $(KERNEL_BIN): $(KERNEL_ELF)

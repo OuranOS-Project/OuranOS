@@ -5,7 +5,8 @@ SECTIONS
   . = 0x1000;
 
   .text : {
-    *(.text)
+    *(.text._start)  /* Placer _start en premier */
+    *(.text*)
   }
 
   .rodata : {
