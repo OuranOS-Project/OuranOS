@@ -1,6 +1,7 @@
 [bits 32]
 
 extern idtp
+extern fault_handler
 
 global isr0
 global isr1
@@ -37,15 +38,45 @@ global isr31
 
 global idt_load
 
+isr0:
+    pusha
+    push ds
+    push es
+    push fs
+    push gs
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    push dword 0
+    push dword 0
+    call fault_handler
+    add esp, 8
+
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    popa
+
+    cli
+    hlt
+    jmp $
+
 idt_load:
     lidt [idtp]
     ret
 
 %macro ISR_NOERR 1
+%if %1 != 0
 isr%1:
     cli
     hlt
     jmp $
+%endif
 %endmacro
 
 %assign i 0
@@ -53,3 +84,4 @@ isr%1:
     ISR_NOERR i
     %assign i i+1
 %endrep
+

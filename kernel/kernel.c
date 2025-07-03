@@ -11,11 +11,10 @@ void _start() {
 
     idt_init();
     
-    int test = 5;
-    int test2 = test / 0; // This will cause a division by zero exception
-
+    volatile int test = 5;
     screen_print_dec((point_t){0,2}, test);
-    screen_print_dec((point_t){0,3}, test2); // This will not be executed due to the exception
+    volatile int test2 = test / 0;
+    screen_print_dec((point_t){0,3}, test2);
 
     screen_print((point_t){0,4}, "Test finished");
 

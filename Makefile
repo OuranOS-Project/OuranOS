@@ -6,7 +6,7 @@ CC = $(CROSS_PREFIX)gcc
 LD = $(CROSS_PREFIX)ld
 OBJCOPY = $(CROSS_PREFIX)objcopy
 
-CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra -fno-stack-protector -fomit-frame-pointer
+CFLAGS = -ffreestanding -m32 -Wall -Wextra -fno-stack-protector -fomit-frame-pointer # -O2
 LDFLAGS = -T linker.ld -nostdlib
 
 BUILD_DIR = build

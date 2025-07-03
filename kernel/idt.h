@@ -2,6 +2,10 @@
 #define IDT_H
 
 #include <stdint.h>
+#include "debug.h"
+#include "screen.h"
+#include "memory.h"
+#include "string.h"
 
 #define IDT_ENTRIES 256
 
@@ -20,5 +24,7 @@ typedef struct {
 
 void idt_init();
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
+
+void fault_handler(int int_no, int err_code);
 
 #endif

@@ -89,3 +89,11 @@ void idt_init() {
 
     idt_load(); // voir isr.s
 }
+
+void fault_handler(int int_no, int err_code) {
+    if (int_no == 0) {
+        debug_panic("Division par zero");
+    } else {
+        debug_panic("Exception CPU");
+    }
+}
