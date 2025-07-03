@@ -1,9 +1,35 @@
-void _start() {
-    volatile char *video = (volatile char*)0xB8000;
-    video[0] = 'O'; video[1] = 0x07;  // Affiche 'O'
-    video[2] = 'K'; video[3] = 0x07;  // Affiche 'K'
+/*
+void test(){
 
-    while (1) {
-        // Boucle infinie pour éviter de quitter le programme
+}
+*/
+
+void main() {
+
+    /*----------------------*/
+    // Clear
+
+    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
+
+    for (int i = 0; i < 80 * 25; i++) {
+        video[i] = 0x0700 | ' ';
     }
+    
+    /*----------------------*/
+    // Display message
+
+    *video = (volatile unsigned short*)0xB8000;
+
+    const char *str = "Welcome to OuranOS!";
+
+    for (int i = 0; str[i] != '\0' && (0 + i) < 80 * 25; i++) {
+        video[1 + i] = 0x0700 | str[i];
+    }
+    
+    /*----------------------*/
+    // Test
+
+    //test();
+    
+    while (1) {}
 }

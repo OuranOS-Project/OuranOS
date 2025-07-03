@@ -8,11 +8,16 @@ SECTIONS
     *(.text)
   }
 
+  .rodata : {
+    *(.rodata*)
+  }
+
   .data : {
     *(.data)
   }
 
   .bss : {
-    *(.bss COMMON)
+    *(COMMON)
+    *(.bss)
   }
 }
