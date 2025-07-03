@@ -14,10 +14,19 @@ BUILD_DIR = build
 # === Fichiers source ===
 
 BOOT_SRC = boot/bootloader.s
-KERNEL_SRC = kernel/kernel.c kernel/screen.c
+KERNEL_SRC = \
+	kernel/kernel.c \
+	kernel/screen.c \
+	kernel/memory.c \
+	kernel/string.c \
+	kernel/debug.c \
+	kernel/idt.c \
+	kernel/isr.s
+
 
 BOOT_BIN = $(BUILD_DIR)/bootloader.bin
 KERNEL_OBJ = $(KERNEL_SRC:kernel/%.c=$(BUILD_DIR)/%.o)
+KERNEL_OBJ := $(KERNEL_OBJ:kernel/%.s=$(BUILD_DIR)/%.o)
 KERNEL_ELF = $(BUILD_DIR)/kernel.elf
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
 OS_IMAGE = $(BUILD_DIR)/os.img
@@ -36,6 +45,10 @@ $(BOOT_BIN): $(BOOT_SRC) | $(BUILD_DIR)
 # Compile kernel objects
 $(BUILD_DIR)/%.o: kernel/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Assemble kernel assembly files
+$(BUILD_DIR)/%.o: kernel/%.s | $(BUILD_DIR)
+	$(AS) -f elf32 $< -o $@
 
 # Link kernel
 $(KERNEL_ELF): $(KERNEL_OBJ)

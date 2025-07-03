@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "screen.h"
 
 void screen_clear() {
     volatile unsigned short *video = (volatile unsigned short*)0xB8000;
@@ -16,3 +16,15 @@ void screen_print(point_t point, const char *str) {
     }
 }
 
+void screen_print_dec(point_t p, int value) {
+    char buffer[16];
+    itoa(value, buffer, 10);
+    screen_print(p, buffer);
+}
+
+void screen_print_hex(point_t p, unsigned int value) {
+    char buffer[16];
+    itoa(value, buffer, 16);
+    screen_print(p, "0x");
+    screen_print((point_t){p.x + 2, p.y}, buffer); 
+}
