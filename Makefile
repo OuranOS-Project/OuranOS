@@ -1,12 +1,12 @@
 # === Configuration ===
 
 CROSS_PREFIX = i686-elf-
-AS = $(CROSS_PREFIX)as
+AS = nasm
 CC = $(CROSS_PREFIX)gcc
 LD = $(CROSS_PREFIX)ld
 OBJCOPY = $(CROSS_PREFIX)objcopy
 
-CFLAGS = -ffreestanding -O2 -Wall -Wextra
+CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra -fno-stack-protector -fomit-frame-pointer
 LDFLAGS = -T linker.ld -nostdlib
 
 BUILD_DIR = build
@@ -14,38 +14,47 @@ BUILD_DIR = build
 # === Fichiers source ===
 
 BOOT_SRC = boot/bootloader.s
-KERNEL_SRC = kernel/kernel.c
+KERNEL_SRC = kernel/kernel.c kernel/screen.c
 
-BOOT_OBJ = $(BUILD_DIR)/bootloader.o
-KERNEL_OBJ = $(BUILD_DIR)/kernel.o
+BOOT_BIN = $(BUILD_DIR)/bootloader.bin
+KERNEL_OBJ = $(KERNEL_SRC:kernel/%.c=$(BUILD_DIR)/%.o)
 KERNEL_ELF = $(BUILD_DIR)/kernel.elf
 KERNEL_BIN = $(BUILD_DIR)/kernel.bin
+OS_IMAGE = $(BUILD_DIR)/os.img
 
 # === Règles ===
 
-all: $(KERNEL_BIN)
+all: $(OS_IMAGE)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-# Assemble le bootloader
-$(BOOT_OBJ): $(BOOT_SRC) | $(BUILD_DIR)
-	$(AS) -32 -o $@ $<
+# Assemble bootloader
+$(BOOT_BIN): $(BOOT_SRC) | $(BUILD_DIR)
+	$(AS) -f bin $< -o $@
 
-# Compile le kernel C
-$(KERNEL_OBJ): $(KERNEL_SRC) | $(BUILD_DIR)
+# Compile kernel objects
+$(BUILD_DIR)/%.o: kernel/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link les deux en un fichier ELF
-$(KERNEL_ELF): $(BOOT_OBJ) $(KERNEL_OBJ)
+# Link kernel
+$(KERNEL_ELF): $(KERNEL_OBJ)
 	$(LD) $(LDFLAGS) -o $@ $^
 
-# Convertit en binaire brut
+# Convert to raw binary
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@
 
-# Nettoyage
+# Créer une image disque valide avec bootloader et kernel
+$(OS_IMAGE): $(BOOT_BIN) $(KERNEL_BIN)
+	dd if=/dev/zero of=$@ bs=512 count=2880          # Créer une image vide 1.44MB
+	dd if=$(BOOT_BIN) of=$@ conv=notrunc            # Écrire le bootloader
+	dd if=$(KERNEL_BIN) of=$@ bs=512 seek=1 conv=notrunc  # Écrire le kernel à partir du secteur 2
+
+run: $(OS_IMAGE)
+	qemu-system-i386 -fda $(OS_IMAGE)
+
 clean:
 	rm -rf $(BUILD_DIR)
 
-.PHONY: all clean
+.PHONY: all clean run

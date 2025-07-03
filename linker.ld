@@ -1,22 +1,24 @@
-ENTRY(start)  /* Point d'entrée défini dans boot.s */
+ENTRY(_start)
 
 SECTIONS
 {
-  /* L'adresse de chargement en mémoire */
-  . = 0x100000;  /* 1 Mio, conventionnel pour les kernels */
+  . = 0x1000;
 
-  /* Section code */
   .text : {
-    *(.text)
+    *(.text._start)  /* Placer _start en premier */
+    *(.text*)
   }
 
-  /* Section données initialisées */
+  .rodata : {
+    *(.rodata*)
+  }
+
   .data : {
     *(.data)
   }
 
-  /* Section données non initialisées (BSS) */
   .bss : {
-    *(.bss COMMON)
+    *(COMMON)
+    *(.bss)
   }
 }
