@@ -45,7 +45,6 @@ char *itoa(int value, char *str, int base) {
 
     *ptr = '\0';
 
-    // Inverser la chaîne
     for (char *left = start, *right = ptr - 1; left < right; left++, right--) {
         char tmp = *left;
         *left = *right;

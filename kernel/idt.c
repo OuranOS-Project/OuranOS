@@ -44,7 +44,7 @@ void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].base_high = (base >> 16) & 0xFFFF;
 }
 
-void idt_load(); // définie en assembleur (lidt)
+void idt_load(); // defined in isr.s
 
 void idt_init() {   
     idtp.limit = sizeof(idt_entry_t) * IDT_ENTRIES - 1;
@@ -87,7 +87,7 @@ void idt_init() {
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
 
-    idt_load(); // voir isr.s
+    idt_load(); // isr.s
 }
 
 void fault_handler(int int_no) {

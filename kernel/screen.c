@@ -6,7 +6,7 @@
 
 void screen_clear() {
     for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
-        VIDEO_MEMORY[i] = 0; // Noir
+        VIDEO_MEMORY[i] = 0;
     }
 }
 
@@ -34,7 +34,7 @@ void screen_print(point_t point, const char *str) {
             cursor_x = point.x * char_width;
             cursor_y += char_height;
         } else {
-            screen_draw_char(cursor_x, cursor_y, *str, 15); // Blanc
+            screen_draw_char(cursor_x, cursor_y, *str, 15); 
             cursor_x += char_width;
         }
         str++;

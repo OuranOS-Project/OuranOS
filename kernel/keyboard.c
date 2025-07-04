@@ -27,7 +27,6 @@ void keyboard_handler() {
     uint8_t scancode = inb(KEYBOARD_DATA_PORT);
 
     if (scancode & 0x80) {
-        // Touche relâchée, ignorer pour un handler simple
     } else {
         char c = scancode_table_azerty[scancode];
         if (c) {
