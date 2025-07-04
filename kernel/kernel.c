@@ -1,14 +1,17 @@
 #include "kernel.h"
-#include "screen.h"
-#include "debug.h"
-#include "keyboard.h"
+
+#define VIDEO_MEMORY ((uint8_t*)0xA0000)
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 200
+
 
 void _start() {
-    screen_clear();
-    pic_remap();
-    idt_init();
-    keyboard_init();
-    enable_interrupts();
+    screen_change_font(font8x8, 8, 8);
+    /*
+    screen_print((point_t){0, 0}, "0123456789\nabcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n.,:;!?@#$%^&*()[]{}<>/\\|-_+=\'\"`~ ");
+    screen_change_font(font6x6, 6, 6);
+    screen_print((point_t){0, 10}, "0123456789\nabcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n.,:;!?@#$%^&*()[]{}<>/\\|-_+=\'\"`~ ");
+    */
 
     const char* ascii_art[] = {
         "  ___                         ___   ____  ",
@@ -18,14 +21,7 @@ void _start() {
         " \\___/ \\__,_|_|  \\__,_|_| |_|\\___/|____/ "
     };
 
-    screen_ascii_art((point_t){0, 0}, ascii_art, 5);
-    screen_print((point_t){0,7}, "Welcome to OuranOS!");
-    screen_draw_rectangle_outline((rectangle_t){50, 10, 20, 10}, 0x4F);
-    screen_draw_rectangle((rectangle_t){51, 11, 20, 10}, 0x1F);
+    screen_ascii_art((point_t){0, 0}, ascii_art, sizeof(ascii_art) / sizeof(ascii_art[0]));
 
-    screen_print((point_t){0,9}, "Tapez sur le clavier :");
-
-    while (1) {
-        // Boucle infinie, le handler clavier s'occupe d'afficher les touches
-    }
+    while (1) {}
 }

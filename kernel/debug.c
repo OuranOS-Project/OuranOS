@@ -2,6 +2,7 @@
 
 void debug_panic(const char *msg) {
     screen_clear();
+    //screen_change_font(font8x8, 8, 8);
     screen_print((point_t){0, 0}, "!!! KERNEL PANIC !!!");
     screen_print((point_t){0, 2}, msg);
 

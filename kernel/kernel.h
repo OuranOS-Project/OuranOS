@@ -15,6 +15,7 @@
 #include "keyboard.h"
 #include "io.h"
 #include "pic.h"
+#include "bitmap_font.h"
 
 
 #endif

@@ -15,6 +15,10 @@ start:
     mov dh, 0                              ; Head 0
     int 0x13                               ; Read sectors from disk
     jc disk_error                          ; If error, jump to error handler
+
+    mov ah, 0x00                           ; Function to set video mode 
+    mov al, 0x13                           ; Set 320x200 256-color mode
+    int 0x10                               ; Call BIOS interrupt to set video mode
  
     cli                                    ; Clear interrupts
     lgdt [gdt_descriptor]                  ; Load GDT

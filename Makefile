@@ -25,7 +25,8 @@ KERNEL_SRC = \
 	kernel/keyboard.c \
 	kernel/keyboard_isr.s \
 	kernel/io.c \
-	kernel/pic.c
+	kernel/pic.c \
+	kernel/bitmap_font.c
 
 
 BOOT_BIN = $(BUILD_DIR)/bootloader.bin

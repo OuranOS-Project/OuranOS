@@ -1,18 +1,43 @@
-#include "screen.h"
+#include "kernel.h"
+
+#define VIDEO_MEMORY ((volatile unsigned char*)0xA0000)
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 200
 
 void screen_clear() {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
+    for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
+        VIDEO_MEMORY[i] = 0; // Noir
+    }
+}
 
-    for (int i = 0; i < 80 * 25; i++) {
-        video[i] = 0x0700 | ' '; 
+void screen_draw_char(int x, int y, char c, unsigned char color) {
+    const unsigned char *glyph = current_font[(unsigned char)c];
+    for (int row = 0; row < char_height; row++) {
+        unsigned char bits = glyph[row];
+        for (int col = 0; col < char_width; col++) {
+            if (bits & (1 << (7 - col))) {
+                int px = x + col;
+                int py = y + row;
+                if (px >= 0 && px < SCREEN_WIDTH && py >= 0 && py < SCREEN_HEIGHT) {
+                    VIDEO_MEMORY[py * SCREEN_WIDTH + px] = color;
+                }
+            }
+        }
     }
 }
 
 void screen_print(point_t point, const char *str) {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
-    int offset = point.y * 80 + point.x;
-    for (int i = 0; str[i] != '\0' && (offset + i) < 80 * 25; i++) {
-        video[offset + i] = 0x0700 | str[i];
+    int cursor_x = point.x * char_width;
+    int cursor_y = point.y * char_height;
+    while (*str) {
+        if (*str == '\n') {
+            cursor_x = point.x * char_width;
+            cursor_y += char_height;
+        } else {
+            screen_draw_char(cursor_x, cursor_y, *str, 15); // Blanc
+            cursor_x += char_width;
+        }
+        str++;
     }
 }
 
@@ -30,39 +55,41 @@ void screen_print_hex(point_t p, unsigned int value) {
 }
 
 void screen_draw_pixel(point_t p, unsigned char color) {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
-    if (p.x >= 0 && p.x < 80 && p.y >= 0 && p.y < 25) {
-        int offset = p.y * 80 + p.x;
-        video[offset] = (color << 8) | ' '; // Set the color and character
+    if (p.x >= 0 && p.x < SCREEN_WIDTH && p.y >= 0 && p.y < SCREEN_HEIGHT) {
+        VIDEO_MEMORY[p.y * SCREEN_WIDTH + p.x] = color;
     }
 }
 
 void screen_draw_rectangle(rectangle_t rect, unsigned char color) {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
     for (int y = 0; y < rect.height; y++) {
         for (int x = 0; x < rect.width; x++) {
-            int offset = (rect.y + y) * 80 + (rect.x + x);
-            if (offset < 80 * 25) {
-                video[offset] = (color << 8) | ' ';
+            int px = rect.x + x;
+            int py = rect.y + y;
+            if (px >= 0 && px < SCREEN_WIDTH && py >= 0 && py < SCREEN_HEIGHT) {
+                VIDEO_MEMORY[py * SCREEN_WIDTH + px] = color;
             }
         }
     }
 }
 
 void screen_draw_rectangle_outline(rectangle_t rect, unsigned char color) {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
-
     for (int x = 0; x < rect.width; x++) {
-        if ((rect.x + x) < 80) {
-            video[(rect.y * 80) + (rect.x + x)] = (color << 8) | ' '; // Top edge
-            video[((rect.y + rect.height - 1) * 80) + (rect.x + x)] = (color << 8) | ' '; // Bottom edge
+        int px = rect.x + x;
+        if (px >= 0 && px < SCREEN_WIDTH) {
+            if (rect.y >= 0 && rect.y < SCREEN_HEIGHT)
+                VIDEO_MEMORY[rect.y * SCREEN_WIDTH + px] = color;
+            if ((rect.y + rect.height - 1) >= 0 && (rect.y + rect.height - 1) < SCREEN_HEIGHT)
+                VIDEO_MEMORY[(rect.y + rect.height - 1) * SCREEN_WIDTH + px] = color;
         }
     }
 
     for (int y = 0; y < rect.height; y++) {
-        if ((rect.y + y) < 25) {
-            video[((rect.y + y) * 80) + rect.x] = (color << 8) | ' '; // Left edge
-            video[((rect.y + y) * 80) + (rect.x + rect.width - 1)] = (color << 8) | ' '; // Right edge
+        int py = rect.y + y;
+        if (py >= 0 && py < SCREEN_HEIGHT) {
+            if (rect.x >= 0 && rect.x < SCREEN_WIDTH)
+                VIDEO_MEMORY[py * SCREEN_WIDTH + rect.x] = color;
+            if ((rect.x + rect.width - 1) >= 0 && (rect.x + rect.width - 1) < SCREEN_WIDTH)
+                VIDEO_MEMORY[py * SCREEN_WIDTH + (rect.x + rect.width - 1)] = color;
         }
     }
 }
@@ -73,27 +100,28 @@ void screen_ascii_art(point_t p, const char **art, int lines) {
     }
 }
 
+// Cursor doesn't exist in 13h - placeholder
 void screen_set_cursor(uint16_t pos) {
-    // Envoyer les 8 bits de poids fort (high byte)
-    outb(0x3D4, 0x0E);
-    outb(0x3D5, (pos >> 8) & 0xFF);
-
-    // Envoyer les 8 bits de poids faible (low byte)
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, pos & 0xFF);
+    (void)pos;
 }
 
-static int cursor_pos = 1;
+// Emulate cursor
+static int cursor_pos_x = 0;
+static int cursor_pos_y = 0;
 
-void screen_put_char(point_t p,     char c) {
-    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
+void screen_put_char(point_t p, char c) {
     if (c == '\n') {
-        cursor_pos += 80 - (cursor_pos % 80);
+        cursor_pos_x = 0;
+        cursor_pos_y++;
     } else if (c == '\b') {
-        if (cursor_pos > 0) cursor_pos--;
-        video[cursor_pos] = 0x0700 | ' ';
+        if (cursor_pos_x > 0) cursor_pos_x--;
+        screen_draw_char(cursor_pos_x * char_width, cursor_pos_y * char_height, ' ', 0); 
     } else {
-        video[cursor_pos++] = 0x0700 | c;
+        screen_draw_char(cursor_pos_x * char_width, cursor_pos_y * char_height, c, 15);
+        cursor_pos_x++;
+        if (cursor_pos_x * char_width >= SCREEN_WIDTH) {
+            cursor_pos_x = 0;
+            cursor_pos_y++;
+        }
     }
-    screen_set_cursor(cursor_pos);
 }
