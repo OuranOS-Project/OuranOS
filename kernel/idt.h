@@ -21,6 +21,8 @@ typedef struct {
 void idt_init();
 void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 
-void fault_handler(int int_no, int err_code);
+void fault_handler(int int_no);
+
+void enable_interrupts(); // Defined in isr.s
 
 #endif

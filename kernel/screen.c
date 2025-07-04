@@ -72,3 +72,28 @@ void screen_ascii_art(point_t p, const char **art, int lines) {
         screen_print((point_t){p.x, p.y + i}, art[i]);
     }
 }
+
+void screen_set_cursor(uint16_t pos) {
+    // Envoyer les 8 bits de poids fort (high byte)
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (pos >> 8) & 0xFF);
+
+    // Envoyer les 8 bits de poids faible (low byte)
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, pos & 0xFF);
+}
+
+static int cursor_pos = 1;
+
+void screen_put_char(point_t p,     char c) {
+    volatile unsigned short *video = (volatile unsigned short*)0xB8000;
+    if (c == '\n') {
+        cursor_pos += 80 - (cursor_pos % 80);
+    } else if (c == '\b') {
+        if (cursor_pos > 0) cursor_pos--;
+        video[cursor_pos] = 0x0700 | ' ';
+    } else {
+        video[cursor_pos++] = 0x0700 | c;
+    }
+    screen_set_cursor(cursor_pos);
+}

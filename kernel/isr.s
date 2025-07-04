@@ -1,5 +1,10 @@
 [bits 32]
 
+global enable_interrupts
+enable_interrupts:
+    sti
+    ret
+
 extern idtp
 extern fault_handler
 

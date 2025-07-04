@@ -12,5 +12,9 @@
 #include "string.h"
 #include "debug.h"
 #include "idt.h"
+#include "keyboard.h"
+#include "io.h"
+#include "pic.h"
+
 
 #endif

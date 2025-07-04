@@ -19,9 +19,14 @@ void screen_clear();
 void screen_print(point_t point, const char *str);
 void screen_print_dec(point_t p, int value);
 void screen_print_hex(point_t p, unsigned int value);
+
 void screen_draw_pixel(point_t p, unsigned char color);
 void screen_draw_rectangle(rectangle_t rect, unsigned char color);
 void screen_draw_rectangle_outline(rectangle_t rect, unsigned char color);
 void screen_ascii_art(point_t p, const char **art, int lines);
+
+void screen_set_cursor(uint16_t pos);
+
+void screen_put_char(point_t p, char c);
 
 #endif

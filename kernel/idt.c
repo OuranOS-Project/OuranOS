@@ -90,7 +90,7 @@ void idt_init() {
     idt_load(); // voir isr.s
 }
 
-void fault_handler(int int_no, int err_code) {
+void fault_handler(int int_no) {
     if (int_no == 0) {
         debug_panic("Division by zero");
     } else {
