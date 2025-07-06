@@ -1,4 +1,16 @@
+#include "kernel.h"
+#include "screen.h"
 #include "idt.h"
+#include "pic.h"
+#include "keyboard.h"
+#include "input.h"
+#include "timer.h"
+#include "bitmap_font.h"
+#include "string.h"
+#include "debug.h"
+#include "io.h"
+#include "memory.h"
+
 
 extern void isr0();
 extern void isr1();
@@ -32,6 +44,11 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
+extern void isr32();         // IRQ0 stub in timer_isr.s
+extern void idt_load();      // isr.s
+extern void enable_interrupts(); // isr.s
+extern void timer_handler();
 
 idt_entry_t idt[IDT_ENTRIES];
 idt_ptr_t idtp;
@@ -86,8 +103,13 @@ void idt_init() {
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+    idt_set_gate(32, (uint32_t)isr32, 0x08, 0x8E); // IRQ0 = PIT
 
+    idt_set_gate(33, (uint32_t)isr33, 0x08, 0x8E);
+
+    pic_remap(); // Remap the PICs
     idt_load(); // isr.s
+    enable_interrupts(); // Enable interrupts globally
 }
 
 void fault_handler(int int_no) {
@@ -97,3 +119,4 @@ void fault_handler(int int_no) {
         debug_panic("Exception CPU");
     }
 }
+

@@ -1,4 +1,15 @@
 #include "kernel.h"
+#include "screen.h"
+#include "idt.h"
+#include "pic.h"
+#include "keyboard.h"
+#include "input.h"
+#include "timer.h"
+#include "bitmap_font.h"
+#include "string.h"
+#include "debug.h"
+#include "io.h"
+#include "memory.h"
 
 #define VIDEO_MEMORY ((uint8_t*)0xA0000)
 #define SCREEN_WIDTH 320
@@ -7,32 +18,49 @@
 
 void _start() {
     screen_change_font(font8x8, 8, 8);
-    /*
-    screen_print((point_t){0, 0}, "0123456789\nabcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n.,:;!?@#$%^&*()[]{}<>/\\|-_+=\'\"`~ ");
-    screen_change_font(font6x6, 6, 6);
-    screen_print((point_t){0, 10}, "0123456789\nabcdefghijklmnopqrstuvwxyz\nABCDEFGHIJKLMNOPQRSTUVWXYZ\n.,:;!?@#$%^&*()[]{}<>/\\|-_+=\'\"`~ ");
+    idt_init();
+    pic_remap();
+    keyboard_init();
+    enable_interrupts();
+    timer_init(1000);
+
+    //screen_draw_rectangle((rectangle_t){0, 0, 50, 50}, 3);
+
+
+    
+    /* Working :
+    while (1){
+        keyboard_state_t keys = keyboard_scan();
+        screen_clear();
+        if (keyboard_key_down(keys, KEY_QWERTY_ENTER) || keyboard_key_down(keys, KEY_AZERTY_ENTER)) {
+            screen_print((point_t){0, 0}, "Enter pressed", true, 15);
+        } else {
+            screen_print((point_t){0, 0}, "Press Enter", true, 15);
+        }
+        sleep(200);
+        
+    }
     */
 
-    const char* ascii_art[] = {
-        "  ___                         ___   ____  ",
-        " / _ \\ _   _ _ __ __ _ _ __  / _ \\ / ___| ",
-        "| | | | | | | '__/ _` | '_ \\| | | \\___ \\ ",
-        "| |_| | |_| | | | (_| | | | | |_| |___) |",
-        " \\___/ \\__,_|_|  \\__,_|_| |_|\\___/|____/ "
-    };
+    /*
+    screen_draw_rectangle((rectangle_t){0, 0, char_width, char_height}, 3);
+    screen_print((point_t){1, 0}, "A", true, 15);
+    screen_draw_rectangle((rectangle_t){char_width, char_height, char_width, char_height}, 3);
+    screen_print((point_t){0, 1}, "A", true, 15);
+    */
 
-    screen_ascii_art((point_t){0, 0}, ascii_art, sizeof(ascii_art) / sizeof(ascii_art[0]));
+    
+    char* buffer[256];
+    *buffer = screen_print_input_string((point_t){0, 0}, true, 15);
 
-    //------------------------------------------------------------------
+    screen_clear();
+    screen_print((point_t){0, 0}, "You entered:", true, 15);
+    screen_print((point_t){0, 1}, *buffer, true, 15);
 
-    screen_draw_rectangle((rectangle_t){0, 70, 50, 50}, 15); // White
-    screen_draw_rectangle_outline((rectangle_t){100, 70, 50, 50}, 4); // Red
+    while (1){
 
-    screen_print((point_t){0, 20}, "Hello");
-    screen_print_dec((point_t){10, 20}, 12345);
-    screen_print_hex((point_t){20, 20}, 0x1234AB);
+    }
 
-
-
-    while (1) {}
 }
+
+

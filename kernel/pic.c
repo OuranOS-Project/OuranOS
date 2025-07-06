@@ -1,4 +1,16 @@
+#include "kernel.h"
+#include "screen.h"
+#include "idt.h"
 #include "pic.h"
+#include "keyboard.h"
+#include "input.h"
+#include "timer.h"
+#include "bitmap_font.h"
+#include "string.h"
+#include "debug.h"
+#include "io.h"
+#include "memory.h"
+
 
 #define PIC1            0x20
 #define PIC2            0xA0
@@ -19,7 +31,7 @@ void pic_remap() {
     outb(PIC2_DATA, 2);
     outb(PIC1_DATA, ICW4_8086);
     outb(PIC2_DATA, ICW4_8086);
-    // Optionally, mask all interrupts except IRQ1 (keyboard)
-    outb(PIC1_DATA, 0xFD); // 11111101 : only IRQ1 enabled
+    // Autoriser IRQ0 (timer) et IRQ1 (clavier) uniquement
+    outb(PIC1_DATA, 0xFC); // 11111100 : IRQ0 et IRQ1 activés
     outb(PIC2_DATA, 0xFF);
 }

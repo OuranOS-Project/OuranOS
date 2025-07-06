@@ -1,4 +1,16 @@
+#include "kernel.h"
+#include "screen.h"
+#include "idt.h"
+#include "pic.h"
+#include "keyboard.h"
+#include "input.h"
+#include "timer.h"
+#include "bitmap_font.h"
 #include "string.h"
+#include "debug.h"
+#include "io.h"
+#include "memory.h"
+
 
 int strlen(const char *str) {
     int len = 0;

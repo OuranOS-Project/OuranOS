@@ -12,6 +12,6 @@ void screen_change_font(const unsigned char font[128][8], int width, int height)
 
 extern const unsigned char font8x8[128][8];
 
-extern const unsigned char font6x6[128][6];
+extern const unsigned char font6x6[128][8];
 
 #endif
