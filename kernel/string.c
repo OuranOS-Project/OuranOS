@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 int strlen(const char *str) {
     int len = 0;
@@ -64,4 +64,24 @@ char *itoa(int value, char *str, int base) {
     }
 
     return str;
+}
+
+char *strncat(char *dest, const char *src, int n) {
+    char *d = dest;
+    while (*d) d++;
+    while (n-- && *src) {
+        *d++ = *src++;
+    }
+    *d = '\0';
+    return dest;
+}
+
+char *strcat(char *dest, const char *src) {
+    char *d = dest;
+    while (*d) d++;
+    while (*src) {
+        *d++ = *src++;
+    }
+    *d = '\0';
+    return dest;
 }

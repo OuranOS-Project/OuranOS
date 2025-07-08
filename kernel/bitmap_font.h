@@ -1,8 +1,6 @@
 #ifndef BITMAP_FONT_H
 #define BITMAP_FONT_H
 
-#include "kernel.h"
-
 extern int char_width;
 extern int char_height;
 

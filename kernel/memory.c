@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 void *memset(void *dst, int value, unsigned int count) {
     unsigned char *ptr = (unsigned char*)dst;

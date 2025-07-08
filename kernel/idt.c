@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 extern void isr0();
 extern void isr1();

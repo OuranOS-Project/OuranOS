@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 typedef struct {
     uint8_t scancode;

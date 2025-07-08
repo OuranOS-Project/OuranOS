@@ -1,23 +1,23 @@
 #include "kernel.h"
+#include "bitmap_font.h"
 #include "screen.h"
 #include "idt.h"
 #include "pic.h"
 #include "keyboard.h"
 #include "input.h"
 #include "timer.h"
-#include "bitmap_font.h"
 #include "string.h"
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 #define VIDEO_MEMORY ((volatile unsigned char*)0xA0000)
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 
-background_color = 0; // black
-text_color = 15; // white
+int background_color = 0; // black
+int text_color = 15; // white
 
 void screen_clear() {
     for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {

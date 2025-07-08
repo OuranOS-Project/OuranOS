@@ -10,6 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
+#include "terminal.h"
 
 const unsigned char (*current_font)[8] = font8x8;
 int char_width = 8;

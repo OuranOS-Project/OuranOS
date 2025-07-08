@@ -1,8 +1,6 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include "kernel.h"
-
 typedef struct {
     int x;
     int y;

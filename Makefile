@@ -6,7 +6,7 @@ CC = $(CROSS_PREFIX)gcc
 LD = $(CROSS_PREFIX)ld
 OBJCOPY = $(CROSS_PREFIX)objcopy
 
-CFLAGS = -ffreestanding -m32 -Wall -Wextra -fno-stack-protector -fomit-frame-pointer # -O2
+CFLAGS = -ffreestanding -m32 -Wall -Wextra -fno-stack-protector -fomit-frame-pointer -O0 # -O2 
 LDFLAGS = -T linker.ld -nostdlib
 
 BUILD_DIR = build
@@ -29,7 +29,10 @@ KERNEL_SRC = \
 	kernel/bitmap_font.c \
 	kernel/input.c \
 	kernel/timer.c \
-	kernel/timer_isr.s
+	kernel/timer_isr.s \
+	kernel/terminal.c \
+	kernel/on_start.c \
+	#kernel/fat16.c \
 
 
 BOOT_BIN = $(BUILD_DIR)/bootloader.bin

@@ -1,8 +1,6 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include "kernel.h"
-
 #define IDT_ENTRIES 256
 
 typedef struct {

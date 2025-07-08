@@ -10,6 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
+#include "terminal.h"
 
 // Not 100% accurate lol 20s sleep -> 23s
 

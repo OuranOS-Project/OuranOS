@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "io.h"
 #include "memory.h"
-
+#include "terminal.h"
 
 volatile keyboard_state_t keyboard_state = {0};
 
